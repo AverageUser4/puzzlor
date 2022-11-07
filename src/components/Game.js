@@ -2,26 +2,15 @@ import React from 'react';
 
 export default function Game(props) {
   const [movementData, setMovementData] = React.useState({ x: 0, y: 0, index: null });
-
-  /*
-    canvasData = 
-    [
-      {
-        reactElement: ... ,
-        ref: ... ,
-        styles:
-          {
-            position, top, left
-          }
-      }
-    ]
-  */
+  const [latestZIndex, setLatestZIndex] = React.useState(1);
 
   let src = 'https://cataas.com/cat' + `?&ignoreme=${Math.random()}`;
   if(props.imageData.origin === 'internet')
     src = props.imageData.source;
   else if(props.imageData.origin === 'local')
     src = props.imageData.dataURL;
+
+  const [source] = React.useState(src);
 
   const canvasDataBufor = [];
 
@@ -55,13 +44,31 @@ export default function Game(props) {
       y: event.clientY,
       index
     });
+
+    setLatestZIndex((prev) => {
+      canvasData[index].ref.current.style.zIndex = prev;
+      return prev + 1;
+    });
   }
 
   React.useEffect(() => {    
     const cat = new Image();
     cat.addEventListener('load', () => {
-      const pieceWidth = cat.width / props.horizontal;
-      const pieceHeight = cat.height / props.vertical;
+      const xMultiplier = cat.width / cat.height;
+
+      const maxWidth = innerHeight * 0.9;
+      const maxHeight = innerHeight * 0.9;
+
+      let imageWidth = cat.width;
+      let imageHeight = cat.height;
+
+      while(imageWidth > maxWidth || imageHeight > maxHeight) {
+        imageWidth -= 50 * xMultiplier;
+        imageHeight -= 50;
+      }
+
+      const pieceWidth = imageWidth / props.horizontal;
+      const pieceHeight = imageHeight / props.vertical;
   
       let k = -1;
       for(let i = 0; i < props.horizontal; i++) {
@@ -74,7 +81,7 @@ export default function Game(props) {
           canvas.width = pieceWidth;
           canvas.height = pieceHeight;
       
-          context.drawImage(cat, -pieceWidth * i, -pieceHeight * j);
+          context.drawImage(cat, -pieceWidth * i, -pieceHeight * j, imageWidth, imageHeight);
         }
       }
     });
@@ -91,14 +98,21 @@ export default function Game(props) {
       if(movementData.index === null)
         return;
 
-      // canvasData[movementData.index].styles.left = movementData.x - event.clientX;
-      // canvasData[movementData.index].styles.top = movementData.y - event.clientY;
+      const left = parseInt(canvasData[movementData.index].ref.current.style.left);
+      const top = parseInt(canvasData[movementData.index].ref.current.style.top);
 
-      canvasData[movementData.index].ref.current.style.left = movementData.x - event.clientX + 'px';
-      canvasData[movementData.index].ref.current.style.top = movementData.y - event.clientY + 'px';
+      canvasData[movementData.index].ref.current.style.left = left + event.clientX - movementData.x + 'px';
+      canvasData[movementData.index].ref.current.style.top = top + event.clientY - movementData.y + 'px';
+
+      setMovementData((prev) => ({
+        ...prev,
+        x: event.clientX,
+        y: event.clientY
+      }));
     }
 
     function onMouseUp() {
+      // canvasData.forEach((data) => data.ref.current.style.zIndex = 0);
       setMovementData((prev) => ({
         ...prev,
         index: null
@@ -127,6 +141,22 @@ export default function Game(props) {
         {canvasData.map((data) => data.reactElement)}
       </div>
 
+      <img src={source}/>
+
     </div>
   )
 }
+
+/*
+  canvasData = 
+  [
+    {
+      reactElement: ... ,
+      ref: ... ,
+      styles:
+        {
+          position, top, left
+        }
+    }
+  ]
+*/

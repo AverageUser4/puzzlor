@@ -39,9 +39,8 @@ export default function App() {
 }
 
 /*
-  - need to provide an url
-    - if cat api just get one
-    - if user input: use file reader and data url
+  - add ability to choose amount of pieces
+  - add fieldt to put puzzles in
 */
 
 /*

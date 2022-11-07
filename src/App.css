@@ -9,9 +9,9 @@ body {
   font-size: 24px;
 }
 
-canvas {
+/* canvas {
   border: 5px solid gold;
-}
+} */
 
 label {
   margin: 8px 0;
@@ -73,4 +73,8 @@ label {
   min-height: 100vh;
 
   overflow: hidden;
+}
+
+.the-game__piece-place {
+  outline: 1px dashed black;
 }
