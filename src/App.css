@@ -60,6 +60,15 @@ label {
   background-color: hotpink;
 }
 
+.welcome-screen__pieces-inputs {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  
+  background-color: aquamarine;
+}
+
 .the-game__button {
   border-radius: 0;
   width: 100%

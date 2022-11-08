@@ -8,12 +8,11 @@ export default function WelcomeScreen(props) {
     
 
   function handleInput(event) {
-    const { value, type } = event.target;
+    const { value, name } = event.target;
 
     props.setImageData(prev => ({
       ...prev,
-      origin: type === 'radio' ? value : prev.origin,
-      source: type === 'text' ? value : prev.source
+      [name]: value
     }));
   }
 
@@ -62,7 +61,7 @@ export default function WelcomeScreen(props) {
 
             <input 
               type="radio"
-              name="image-source"
+              name="origin"
               value="cat"
               checked={props.imageData.origin === 'cat'}
               onChange={handleInput}
@@ -76,7 +75,7 @@ export default function WelcomeScreen(props) {
 
             <input 
               type="radio"
-              name="image-source"
+              name="origin"
               value="local"
               checked={props.imageData.origin === 'local'}
               onChange={handleInput}
@@ -90,7 +89,7 @@ export default function WelcomeScreen(props) {
 
             <input 
               type="radio"
-              name="image-source"
+              name="origin"
               value="internet"
               checked={props.imageData.origin === 'internet'}
               onChange={handleInput}
@@ -99,6 +98,40 @@ export default function WelcomeScreen(props) {
           </label>
           
         </fieldset>
+
+        <div className="welcome-screen__pieces-inputs">
+
+          <label>
+
+            <span>Horizontal pieces</span>
+
+            <input
+              name="horizontal"
+              type="number"
+              min="1"
+              max="10"
+              value={props.imageData.horizontal}
+              onChange={handleInput}
+            />
+
+          </label>
+
+          <label>
+
+            <span>Vertical pieces</span>
+
+            <input
+              name="vertical"
+              type="number"
+              min="1"
+              max="10"
+              value={props.imageData.vertical}
+              onChange={handleInput}
+            />
+
+          </label>
+
+        </div>
 
         <label>
 

@@ -14,7 +14,7 @@ export default function Game(props) {
 
   const canvasDataBufor = [];
 
-  for(let i = 0; i < props.horizontal * props.vertical; i++) {
+  for(let i = 0; i < props.imageData.horizontal * props.imageData.vertical; i++) {
     const ref = React.useRef();
     const styles = {
       position: 'absolute',
@@ -25,6 +25,7 @@ export default function Game(props) {
     canvasDataBufor.push({
       ref,
       styles,
+      isMoveable: true,
       reactElement:
         <canvas 
           key={i}
@@ -36,9 +37,30 @@ export default function Game(props) {
   }
 
   const [canvasData, setCanvasData] = React.useState(canvasDataBufor);
+  const [puzzleFields, setPuzzleFields] = React.useState([]);
 
+  const puzzleFieldElements = puzzleFields.map(style =>
+    <div 
+      key={style.top + ' ' + style.left}
+      className="the-game__piece-place"
+      style={style}></div>
+  );
 
   function targetElement(event, index) {
+    let thisIsPatheticProgramming = false;
+    
+    setCanvasData((d) => {
+      for(let i = 0; i < d.length; i++) {
+        if(i === index && !d[i].isMoveable)
+          thisIsPatheticProgramming = true;
+      }
+
+      return d;
+    });
+
+    if(thisIsPatheticProgramming)
+      return;
+
     setMovementData({
       x: event.clientX,
       y: event.clientY,
@@ -67,12 +89,14 @@ export default function Game(props) {
         imageHeight -= 50;
       }
 
-      const pieceWidth = imageWidth / props.horizontal;
-      const pieceHeight = imageHeight / props.vertical;
+      const pieceWidth = imageWidth / props.imageData.horizontal;
+      const pieceHeight = imageHeight / props.imageData.vertical;
   
+      const puzzleFieldsBuf = [];
+
       let k = -1;
-      for(let i = 0; i < props.horizontal; i++) {
-        for(let j = 0; j < props.vertical; j++) {
+      for(let i = 0; i < props.imageData.horizontal; i++) {
+        for(let j = 0; j < props.imageData.vertical; j++) {
           k++;
 
           const canvas = canvasData[k].ref.current;
@@ -82,8 +106,18 @@ export default function Game(props) {
           canvas.height = pieceHeight;
       
           context.drawImage(cat, -pieceWidth * i, -pieceHeight * j, imageWidth, imageHeight);
+
+          puzzleFieldsBuf.push({
+            position: 'absolute',
+            top: 50 + i * pieceHeight,
+            left: 50 + j * pieceWidth,
+            width: pieceWidth,
+            height: pieceHeight
+          });
         }
       }
+
+      setPuzzleFields(puzzleFieldsBuf);
     });
   
     cat.addEventListener('error', () => {
@@ -112,7 +146,24 @@ export default function Game(props) {
     }
 
     function onMouseUp() {
-      // canvasData.forEach((data) => data.ref.current.style.zIndex = 0);
+      if(movementData.index) {
+        const pieceStyle = canvasData[movementData.index].ref.current.style;
+        const pieceX = parseInt(pieceStyle.left);
+        const pieceY = parseInt(pieceStyle.top);
+  
+        const destinationX = puzzleFields[movementData.index].left;
+        const destinationY = puzzleFields[movementData.index].top;
+  
+        if(
+            Math.abs(pieceX - destinationX) <= 10 &&
+            Math.abs(pieceY - destinationY) <= 10
+          ) {
+            canvasData[movementData.index].ref.current.style.left = destinationX + 'px';
+            canvasData[movementData.index].ref.current.style.top = destinationY + 'px';
+            setCanvasData(prev => prev.map((data, index) => index === movementData.index ? { ...data, isMoveable: false} : data))
+        }
+      }
+
       setMovementData((prev) => ({
         ...prev,
         index: null
@@ -138,6 +189,7 @@ export default function Game(props) {
       >GO BACK!!!</button>
 
       <div className="the-game__puzzle-field">
+        {puzzleFieldElements}
         {canvasData.map((data) => data.reactElement)}
       </div>
 

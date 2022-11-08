@@ -9,7 +9,9 @@ export default function App() {
   const [imageData, setImageData] = React.useState({
     origin: 'cat',
     source: '',
-    dataURL: ''
+    dataURL: '',
+    vertical: 3,
+    horizontal: 3
   });
 
   // console.log(imageData)
@@ -22,8 +24,6 @@ export default function App() {
           <Game
             imageData={imageData}
             setIsPlaying={setIsPlaying}
-            horizontal={3}
-            vertical={3}
           />
         </>
         :
@@ -39,8 +39,7 @@ export default function App() {
 }
 
 /*
-  - add ability to choose amount of pieces
-  - add fieldt to put puzzles in
+  - add fields to put puzzles in
 */
 
 /*
